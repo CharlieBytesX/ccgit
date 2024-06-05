@@ -1,4 +1,4 @@
-module conventional_commit_TUI
+module github.com/CharlieBytesX/ccgit
 
 go 1.22.3
 
