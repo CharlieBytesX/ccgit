@@ -11,64 +11,37 @@ import (
 	"github.com/erikgeiser/promptkit/confirmation"
 	"github.com/erikgeiser/promptkit/selection"
 	"github.com/erikgeiser/promptkit/textinput"
+
+	"github.com/CharlieBytesX/ccgit/internals/commits"
+	"github.com/CharlieBytesX/ccgit/internals/git"
 )
 
-type CommitType struct {
-	Type    string
-	Meaning string
-}
-
-func (t CommitType) String() string {
-	return fmt.Sprintf("%s: %s", t.Type, t.Meaning)
-}
-
-type Commit struct {
-	Type                       string
-	Scope                      string
-	BreakingChanges            bool
-	BreakingChangesDescription string
-	Title                      string
-	Description                string
-}
-
-func (c Commit) String() string {
-	myString := c.Type
-	if c.Scope != "" {
-		myString += fmt.Sprintf("(%s)", c.Scope)
-	}
-	myString += ": " + c.Title
-	if c.Description != "" {
-		myString += "\n\n" + c.Description
-	}
-
-	if c.BreakingChanges {
-		myString += "\n\nBREAKING CHANGE: " + c.BreakingChangesDescription
-	}
-
-	return myString
-
-}
-
 func main() {
-	conventionalCommits := []CommitType{
-		{"feat", "A new feature"},
-		{"fix", "A bug fix"},
-		{"docs", "Documentation only changes"},
-		{"style", "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)"},
-		{"refactor", "A code change that neither fixes a bug nor adds a feature"},
-		{"perf", "A code change that improves performance"},
-		{"test", "Adding missing tests or correcting existing tests"},
-		{"build", "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)"},
-		{"ci", "Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)"},
-		{"chore", "Other changes that don't modify src or test files"},
-		{"revert", "Reverts a previous commit"},
+	//NOTE: Verify that is inside git worktree
+	if !git.IsInsideGitRepo() {
+		fmt.Println("Not inside git repo or git not installed")
+		return
+	}
+
+	conventionalCommits := []commits.CommitType{
+		{Type: "feat", Meaning: "A new feature"},
+		{Type: "fix", Meaning: "A bug fix"},
+		{Type: "docs", Meaning: "Documentation only changes"},
+		{Type: "style", Meaning: "Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)"},
+		{Type: "refactor", Meaning: "A code change that neither fixes a bug nor adds a feature"},
+		{Type: "perf", Meaning: "A code change that improves performance"},
+		{Type: "test", Meaning: "Adding missing tests or correcting existing tests"},
+		{Type: "build", Meaning: "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)"},
+		{Type: "ci", Meaning: "Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)"},
+		{Type: "chore", Meaning: "Other changes that don't modify src or test files"},
+		{Type: "revert", Meaning: "Reverts a previous commit"},
 	}
 	commitTypesOptions := []string{}
 	for _, option := range conventionalCommits {
 		commitTypesOptions = append(commitTypesOptions, option.String())
 	}
 
-	commit := Commit{}
+	commit := commits.Commit{}
 
 	commitTypePrompt := selection.New("Select commit type:", commitTypesOptions)
 
